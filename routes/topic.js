@@ -5,8 +5,10 @@ const fs = require('fs');
 const path = require('path');
 const sanitizeHtml = require('sanitize-html');
 const template = require('../lib/template.js');
+const auth = require('../lib/auth');
 
 router.get('/create', (request, response) => {
+    if (!auth.isOwner(request)) return response.redirect('/');
     var title = 'WEB - create';
     var list = template.list(request.list);
     var html = template.HTML(title, list, `
@@ -19,7 +21,7 @@ router.get('/create', (request, response) => {
               <input type="submit">
             </p>
           </form>
-        `, '');
+        `, '', auth.statusUI(request),);
     response.writeHead(200);
     response.end(html);
 });
@@ -39,7 +41,8 @@ router.get('/:pageId', (request, response, next) => {
                 <form action="/topic/delete_process" method="post">
                   <input type="hidden" name="id" value="${sanitizedTitle}">
                   <input type="submit" value="delete">
-                </form>`
+                </form>`,
+            auth.statusUI(request),
         );
         response.writeHead(200);
         response.end(html);
@@ -47,6 +50,7 @@ router.get('/:pageId', (request, response, next) => {
 });
 
 router.post('/create_process', (request, response) => {
+    if (!auth.isOwner(request)) return response.redirect('/');
     var post = request.body;
     var title = post.title;
     var description = post.description;
@@ -56,6 +60,7 @@ router.post('/create_process', (request, response) => {
 });
 
 router.get('/update/:pageId', (request, response) => {
+    if (!auth.isOwner(request)) return response.redirect('/');
     var filteredId = path.parse(request.params.pageId).base;
     fs.readFile(`data/${filteredId}`, 'utf8', function (err, description) {
         var title = request.params.pageId;
@@ -73,7 +78,8 @@ router.get('/update/:pageId', (request, response) => {
               </p>
             </form>
             `,
-            `<a href="/topic/create">create</a> <a href="/topic/update/${title}">update</a>`
+            `<a href="/topic/create">create</a> <a href="/topic/update/${title}">update</a>`,
+            auth.statusUI(request),
         );
         response.writeHead(200);
         response.end(html);
@@ -81,6 +87,7 @@ router.get('/update/:pageId', (request, response) => {
 });
 
 router.post('/update_process', (request, response) => {
+    if (!auth.isOwner(request)) return response.redirect('/');
     var post = request.body;
     var id = post.id;
     var title = post.title;
@@ -93,6 +100,7 @@ router.post('/update_process', (request, response) => {
 });
 
 router.post('/delete_process', (request, response) => {
+    if (!auth.isOwner(request)) return response.redirect('/');
     var post = request.body;
     var id = post.id;
     var filteredId = path.parse(id).base;
