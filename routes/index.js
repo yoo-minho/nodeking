@@ -3,8 +3,14 @@ const router = express.Router();
 
 const template = require('../lib/template.js');
 const auth = require('../lib/auth');
+const api = require('../lib/api')
 
-router.get('/', (request, response) => {
+router.get('/', async (request, response) => {
+    const stationsByPrices = await api.getStationsByPrices([1300, 1400, 1500, 1600], true);
+    response.writeHead(200);
+    response.end(JSON.stringify(stationsByPrices));
+    return;
+
     var title = 'Welcome';
     var description = 'Hello, Node.js';
     var list = template.list(request.list);

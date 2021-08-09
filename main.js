@@ -7,9 +7,7 @@ const fileStore = require('session-file-store')(session);
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const fs = require('fs');
-const flash = require('connect-flash');
 
-app.use(flash());
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(compression());
@@ -39,6 +37,26 @@ app.get('*', function (request, response, next) {
 app.use('/', indexRouter);
 app.use('/topic', topicRouter);
 app.use('/auth', authRouter);
+
+app.get('/gstation', (request, response) => {
+    if(Number(request.query.price) === 1300){
+        setTimeout(() => {
+            response.status(200).json(["A001", "A002"])
+        }, 1000)
+    } else if (Number(request.query.price) === 1400){
+        setTimeout(() => {
+            response.status(200).json(["A003", "A004"])
+        }, 1500)
+    } else if (Number(request.query.price) === 1500){
+        setTimeout(() => {
+            response.status(200).json(["A005", "A006"])
+        }, 500)
+    } else {
+        setTimeout(() => {
+            response.status(404).json([])
+        }, 1000)
+    }
+});
 
 app.use((req, res) => {
     res.status(404).send("404-sorry");
